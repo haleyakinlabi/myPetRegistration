@@ -1,9 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from  "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from '../api/axios'
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
+
+const REGISTER_URL = '/register'
 
 const Register = () => {
 
@@ -53,15 +56,62 @@ const Register = () => {
         setErrMsg('')
     }, [user, pwd, matchPwd])
 
+    //handleSubmit Function
+    const handleSumit = async (e) => {
+        e.preventDefault()
+        
+        //if button enabled with JS hack
+        const v1 = USER_REGEX.test(user)
+        const v2 = PWD_REGEX.test(pwd)
+        if (!v1 || !v2) {
+            setErrMsg("Invalid Entry")
+            return 
+        }
+        try {
+            const response = await axios.post(REGISTER_URL,
+                JSON.stringify({ user, pwd }),
+                {
+                    headers: { 'Content-Type' : 'application/json'},
+                    withCredentials: true
+                }
+            )
+            console.log(response.data)
+            console.log(response.accessToken)
+            console.log(JSON.stringify(response))
+            setSuccess(true)
+
+        } catch (err) {
+            if (!err?.response) {
+                setErrMsg('No Server Response');
+            } else if (err.response?.status === 409) {
+                setErrMsg('Username Taken');
+            } else {
+                setErrMsg('Registration Failed')
+            }
+            errRef.current.focus();
+        }
+    }
+
 
     return (
-        <div>
+
+        <>
+            {success ? (
+                <section>
+                    <h1>Success!</h1>
+                    <p>
+                        <a href="#">Sign In</a>
+                    </p>
+                </section>
+            ) : (
+       
+        <section>
            <p ref={errRef} className={errMsg ? "errmsg" :
            "offscreen"} aria-live="assertive">{errMsg}</p>
 
            <h1>Register</h1>
 
-           <form>
+           <form onSubmit={handleSumit}>
 
         {/* //USERNAME */}
             <label htmlFor="username">
@@ -127,7 +177,7 @@ const Register = () => {
                 <span aria label="percent">%</span>
             </p>
 
-        {/* //password matching */}
+        {/* //PASSWORD MATCHING */}
 
              <label htmlFor="confirm_pwd">
                 Confrim Password:
@@ -151,11 +201,28 @@ const Register = () => {
                 Must match the first password input field. 
             </p>
 
-
-
+        {/* //SUBMIT BUTTON */}
+            
+            <button disabled={!validName || !validMatch ? true : false}>
+                Sign Up
+            </button>
 
            </form>
-        </div>
+
+        {/* //ALREADY REGISTERED? */}
+
+            <p>
+                Already registered?<br /> 
+                <span className="line">
+                    {/* {put router link here} */}
+                    <a href="#">Sign In</a>
+                </span>
+            </p>
+        </section>
+            
+        )}
+        </>
+        
     )
 }
 
