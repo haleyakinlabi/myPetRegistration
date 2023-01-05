@@ -180,7 +180,7 @@ const Register = () => {
         {/* //PASSWORD MATCHING */}
 
              <label htmlFor="confirm_pwd">
-                Confrim Password:
+                Confirm Password:
                 <span className={validMatch && matchPwd ? "valid" : "hide"}>
                     <FontAwesomeIcon icon={faTimes} />
                 </span>
@@ -191,7 +191,7 @@ const Register = () => {
                 onChange={(e) => setMatchPwd(e.target.value)}
                 required
                 aria-invalid={validMatch ? "false" : "true"}
-                aria-describedby="confrimnote"
+                aria-describedby="confirmnote"
                 onFocus={() => setMatchFocus(true)}
                 onBlur={() => setMatchFocus(false)}>
             </input>
